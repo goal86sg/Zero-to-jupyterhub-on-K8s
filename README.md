@@ -68,5 +68,22 @@ helm upgrade --install $RELEASE jupyterhub/jupyterhub \
 
 ## Deployed Jupyterhub on Kubernetes
 ```
-
+NAMESPACE            NAME                                              READY   STATUS    RESTARTS   AGE
+container-registry   registry-7cf58dcdcc-hps4t                         1/1     Running   4          170m
+kube-system          coredns-588fd544bf-649gb                          1/1     Running   5          170m
+kube-system          dashboard-metrics-scraper-db65b9c6f-7f7bt         1/1     Running   6          170m
+kube-system          heapster-v1.5.2-58fdbb6f4d-qvdpv                  4/4     Running   20         170m
+kube-system          hostpath-provisioner-75fdc8fccd-wlfcn             1/1     Running   5          170m
+kube-system          kubernetes-dashboard-67765b55f5-pjhq4             1/1     Running   5          170m
+kube-system          monitoring-influxdb-grafana-v4-6dc675bf8c-nvvhz   2/2     Running   8          170m
+metallb-system       controller-5f98465b6b-rfbjl                       1/1     Running   5          170m
+metallb-system       speaker-4926w                                     1/1     Running   6          170m
+metallb-system       speaker-r9zsl                                     1/1     Running   0          157m
+jhub                 continuous-image-puller-8fxvm                     1/1     Running   0          52m
+jhub                 continuous-image-puller-q86td                     1/1     Running   0          52m
+jhub                 hub-57567b69c7-vrwpt                              1/1     Running   2          52m
+jhub                 jupyter-admin                                     1/1     Running   0          47m
+jhub                 proxy-747cffc6db-8rql9                            1/1     Running   0          52m
+jhub                 user-scheduler-fdddf9b65-t9msx                    1/1     Running   0          52m
+jhub                 user-scheduler-fdddf9b65-zcftr                    1/1     Running   0          52m
 ```
