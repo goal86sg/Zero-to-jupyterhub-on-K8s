@@ -87,3 +87,22 @@ jhub                 proxy-747cffc6db-8rql9                            1/1     R
 jhub                 user-scheduler-fdddf9b65-t9msx                    1/1     Running   0          52m
 jhub                 user-scheduler-fdddf9b65-zcftr                    1/1     Running   0          52m
 ```
+```
+NAMESPACE            NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP    PORT(S)                      AGE
+container-registry   registry                    NodePort       10.152.183.102   <none>         5000:32000/TCP               172m
+default              kubernetes                  ClusterIP      10.152.183.1     <none>         443/TCP                      3h14m
+kube-system          dashboard-metrics-scraper   ClusterIP      10.152.183.244   <none>         8000/TCP                     172m
+kube-system          heapster                    ClusterIP      10.152.183.117   <none>         80/TCP                       172m
+kube-system          kube-dns                    ClusterIP      10.152.183.10    <none>         53/UDP,53/TCP,9153/TCP       172m
+kube-system          kubernetes-dashboard        ClusterIP      10.152.183.176   <none>         443/TCP                      172m
+kube-system          monitoring-grafana          ClusterIP      10.152.183.78    <none>         80/TCP                       172m
+kube-system          monitoring-influxdb         ClusterIP      10.152.183.9     <none>         8083/TCP,8086/TCP            172m
+jhub                 hub                         ClusterIP      10.152.183.122   <none>         8081/TCP                     54m
+jhub                 proxy-api                   ClusterIP      10.152.183.73    <none>         8001/TCP                     54m
+jhub                 proxy-public                LoadBalancer   10.152.183.184   10.64.140.43   443:31727/TCP,80:32393/TCP   54m
+```
+
+## Jupyterhub front end
+```
+Access via the metallb external ip or via the node port ip http://xx.xx.xx.xx:32393
+```
