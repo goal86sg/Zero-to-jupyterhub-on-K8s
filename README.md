@@ -52,7 +52,7 @@ proxy:
 EOT
 ```
 
-## Install JupyterHub with Helm
+## Install or Reconfiguring JupyterHub with Helm
 ```
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
 helm repo update
@@ -107,10 +107,3 @@ jhub                 proxy-public                LoadBalancer   10.152.183.184  
 Access via the metallb external ip or via the node port ip http://xx.xx.xx.xx:32393
 ```
 
-## Applying Config changes
-```
-RELEASE=jhub
-helm upgrade $RELEASE jupyterhub/jupyterhub \
-  --version=0.9.0 \
-  --values config.yaml
-```
