@@ -23,7 +23,7 @@ microk8s.kubectl config view --raw >> ~/.kube/config
 
 ## Allow Priviledged in Kube-api server
 ```
-sudo echo "--allow-priviledged=true" >> /var/snap/microk8s/current/args/kube-apiserver
+sudo echo "--allow-privileged=true" >> /var/snap/microk8s/current/args/kube-apiserver
 microk8s.stop
 sleep 20
 microk8s.start
