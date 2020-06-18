@@ -31,7 +31,7 @@ microk8s.start
 
 ## Install latest Helm
 ```
-export helm_version=3.1.1
+export helm_version=3.2.4
 echo "Installing 'helm' v${helm_version}" \
 &&   sudo wget -c https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz \
 &&   sudo tar -zxvf helm-v${helm_version}-linux-amd64.tar.gz \
