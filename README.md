@@ -11,7 +11,7 @@ sudo usermod -a -G microk8s $USER
 exit # exit shall to let permissions take effect
 
 microk8s.status --wait-ready
-microk8s.enable dns dashboard storage registry mettallb
+microk8s.enable dns dashboard storage registry metallb
 # note storage default mount point is 10GB and is mounted on local filesystem /var/snap/microk8s/common/default-storage
 
 # Alias microk8s.kubectl to kubectl
@@ -23,7 +23,7 @@ microk8s.kubectl config view --raw >> ~/.kube/config
 
 ## Allow Priviledged in Kube-api server
 ```
-sudo echo"--allow-priviledged=true" >> /var/snap/microk8s/current/args/kube-apiserver
+sudo echo "--allow-priviledged=true" >> /var/snap/microk8s/current/args/kube-apiserver
 microk8s.stop&&microk8.start
 ```
 
