@@ -44,19 +44,6 @@ echo "Installing 'helm' v${helm_version}" \
 &&   helm version
 ```
 
-## Generate a random hex string representing 32 bytes to use as a security token
-```
-openssl rand -hex 32
-```
-
-## Create a config.yaml enter the random HEX into this file
-```
-sudo tee -a config.yaml > /dev/null <<EOT
-proxy:
-  secretToken: "<RANDOM_HEX>"
-EOT
-```
-
 ## Install or Reconfiguring JupyterHub with Helm
 ```
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
