@@ -8,27 +8,6 @@ auth:
     users: 
       - admin
       - test
-  #type: ldap
-  #ldap:
-  #  server:
-  #    address: contoso.com
-  #    port: 389
-  #  dn:
-  #    lookup: true
-  #    search:
-  #      filter: '({login_attr}={login})'
-  #      user: 'cn=administrator,dc=contoso,dc=com'
-  #      password: 'P@ssw0rd'
-  #    templates:
-  #      - 'cn={username},ou=people,dc=contoso,dc=com'
-  #    user:
-  #      searchBase: 'ou=people,dc=contoso,dc=com'
-  #      escape: False
-  #      attribute: 'uid'
-  #      dnAttribute: 'uid'
-  #  allowedGroups:
-  #    - 'cn=research,ou=teams,dc=contoso,dc=com'
-  #    - 'cn=scientist,ou=teams,dc=contoso,dc=com'
 singleuser:
   cpu:
     limit: .5
