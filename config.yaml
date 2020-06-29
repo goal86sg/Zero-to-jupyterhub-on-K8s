@@ -8,10 +8,6 @@ auth:
     users: 
       - admin
       - test
-      - love
-      - way 
-      - kyh
-      - cy  
   #type: ldap
   #ldap:
   #  server:
