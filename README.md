@@ -32,6 +32,22 @@ sleep 20
 microk8s.start
 ```
 
+## Install Docker and Docker-compose
+```
+sudo echo # This prevents sudo from asking you for a password later
+curl -fsSL get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Add user to docker group so you don't need to sudo 
+sudo usermod -aG docker $USER
+# exit shell for changes to take effect
+
+echo "Installing 'docker-compose' v${docker_compose_version}" \
+&&   sudo wget -cO /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-$(uname -s)-$(uname -m) \
+&&   sudo chmod 0755 /usr/local/bin/docker-compose \
+&&   docker-compose --version
+```
+
 ## Install latest Helm
 ```
 export helm_version=3.2.4
@@ -44,7 +60,7 @@ echo "Installing 'helm' v${helm_version}" \
 &&   helm version
 ```
 
-## Install or Reconfiguring JupyterHub with Helm
+## Install or Reconfiguring JupyterHub with Helm (if with internet connection)
 ```
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
 helm repo update
@@ -99,37 +115,20 @@ jhub                 proxy-public                LoadBalancer   10.152.183.184  
 Access via the metallb external ip or via the node port ip http://xx.xx.xx.xx:32393
 ```
 
-
-## Offline Setup of JupyterHub
+## Overview of JupyterHub offline setup
 ```
-Repeat steps with internet connection first
+Prerequisites 
+Perform with internet connection first
 -Enable Microk8s
 -Allow Priviledged in Kube-api server
+-Install Docker CE and Docker-compose
 -Install latest Helm
-```
-
-#### Install docker and docker-compose
-```
-sudo echo # This prevents sudo from asking you for a password later
-curl -fsSL get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Add user to docker group so you don't need to sudo 
-sudo usermod -aG docker $USER
-# exit shell for changes to take effect
-
-echo "Installing 'docker-compose' v${docker_compose_version}" \
-&&   sudo wget -cO /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-$(uname -s)-$(uname -m) \
-&&   sudo chmod 0755 /usr/local/bin/docker-compose \
-&&   docker-compose --version
-```
-
-#### Get JupyterHub Helm Bundle
-```
-export helm_version=0.9.0
-version
-wget https://jupyterhub.github.io/helm-chart/jupyterhub-v${helm_version}.tgz
-tar -zxvf jupyterhub-v${helm_version}.tgz
+-Download helm bundle
+-Pull down requires images
+-Push to registry
+-Get Jupyterhub helm bundle
+-Pack VM template for offline deployment
+-Deploy Jupyterhub offline Helm chart
 ```
 
 ### Pull tag push docker images required to microk8s registry
@@ -170,8 +169,15 @@ traefik                                                         v2.1            
 
 microk8s ctr images ls
 ```
+### Get JupyterHub Helm Bundle
+```
+export helm_version=0.9.0
+version
+wget https://jupyterhub.github.io/helm-chart/jupyterhub-v${helm_version}.tgz
+tar -zxvf jupyterhub-v${helm_version}.tgz
+```
 
-### Prepare VM template
+### Pack VM template for offline deployment
 ```
 Shutdown
 Export VM as template
