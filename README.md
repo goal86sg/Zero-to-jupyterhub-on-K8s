@@ -42,6 +42,7 @@ sudo sh get-docker.sh
 sudo usermod -aG docker $USER
 # exit shell for changes to take effect
 
+export docker_compose_version=1.25.4
 echo "Installing 'docker-compose' v${docker_compose_version}" \
 &&   sudo wget -cO /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-$(uname -s)-$(uname -m) \
 &&   sudo chmod 0755 /usr/local/bin/docker-compose \
