@@ -1,4 +1,4 @@
-# Zero-to-jupyterhub-on-K8s
+# Zero-to-jupyterhub-on-K8s with internet connection
 
 ## Enable Microk8s
 ```
@@ -11,8 +11,11 @@ sudo usermod -a -G microk8s $USER
 exit # exit shall to let permissions take effect
 
 microk8s.status --wait-ready
-microk8s.enable dns dashboard storage registry metallb
+microk8s.enable dns dashboard registry metallb prometheus ingress
+# Do not enable if hostpath mount is not desired
 # note storage default mount point is 10GB and is mounted on local filesystem /var/snap/microk8s/common/default-storage
+microk8s.enable storage
+
 
 # Alias microk8s.kubectl to kubectl
 alias kubectl='microk8s.kubectl'
@@ -32,6 +35,23 @@ sleep 20
 microk8s.start
 ```
 
+## Install Docker and Docker-compose
+```
+sudo echo # This prevents sudo from asking you for a password later
+curl -fsSL get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Add user to docker group so you don't need to sudo 
+sudo usermod -aG docker $USER
+# exit shell for changes to take effect
+
+export docker_compose_version=1.25.4
+echo "Installing 'docker-compose' v${docker_compose_version}" \
+&&   sudo wget -cO /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-$(uname -s)-$(uname -m) \
+&&   sudo chmod 0755 /usr/local/bin/docker-compose \
+&&   docker-compose --version
+```
+
 ## Install latest Helm
 ```
 export helm_version=3.2.4
@@ -43,8 +63,9 @@ echo "Installing 'helm' v${helm_version}" \
 &&   sudo rm -rf helm-v${helm_version}-linux-amd64.tar.gz ./linux-amd64/ \
 &&   helm version
 ```
+## Enable NFS dynamic storage provisioner
 
-## Install or Reconfiguring JupyterHub with Helm
+## Install or Reconfiguring JupyterHub with Helm (if with internet connection)
 ```
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
 helm repo update
@@ -94,42 +115,34 @@ jhub                 proxy-api                   ClusterIP      10.152.183.73   
 jhub                 proxy-public                LoadBalancer   10.152.183.184   10.64.140.43   443:31727/TCP,80:32393/TCP   54m
 ```
 
+## Create secrets and TLS access
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
+kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
+add this cert into trusted cert folder
+```
+
 ## Jupyterhub front end
 ```
-Access via the metallb external ip or via the node port ip http://xx.xx.xx.xx:32393
+Access via fqdn https://jupyter.domain.com
 ```
 
+# Zero-to-jupyterhub-on-K8s without internet connection
 
-## Offline Setup of JupyterHub
+## Overview of JupyterHub offline setup
 ```
-Repeat steps with internet connection first
+Prerequisites 
+Perform with internet connection first
 -Enable Microk8s
 -Allow Priviledged in Kube-api server
+-Install Docker CE and Docker-compose
 -Install latest Helm
-```
-
-#### Install docker and docker-compose
-```
-sudo echo # This prevents sudo from asking you for a password later
-curl -fsSL get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Add user to docker group so you don't need to sudo 
-sudo usermod -aG docker $USER
-# exit shell for changes to take effect
-
-echo "Installing 'docker-compose' v${docker_compose_version}" \
-&&   sudo wget -cO /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-$(uname -s)-$(uname -m) \
-&&   sudo chmod 0755 /usr/local/bin/docker-compose \
-&&   docker-compose --version
-```
-
-#### Get JupyterHub Helm Bundle
-```
-export helm_version=0.9.0
-version
-wget https://jupyterhub.github.io/helm-chart/jupyterhub-v${helm_version}.tgz
-tar -zxvf jupyterhub-v${helm_version}.tgz
+-Pull down requires images
+-Push to registry
+-Download Jupyterhub helm bundle
+-Pack VM template for offline deployment
+-Enable NFS dynamic storage provisioner
+-Deploy Jupyterhub offline Helm chart
 ```
 
 ### Pull tag push docker images required to microk8s registry
@@ -167,11 +180,20 @@ localhost:32000/jupyter/scipy-notebook                          dd2087c75645    
 localhost:32000/jupyter/tensorflow-notebook                     dd2087c75645        388aa83f6d09        9 days ago          4.98GB
 localhost:32000/traefik                                         v2.1                72bfc37343a4        3 months ago        68.9MB
 traefik                                                         v2.1                72bfc37343a4        3 months ago        68.9MB
+localhost:32000/quay.io/external_storage/nfs-client-provisioner   latest                   16d2f904b0d8        22 months ago       45.5MB
+quay.io/external_storage/nfs-client-provisioner                   latest                   16d2f904b0d8        22 months ago       45.5MB
 
 microk8s ctr images ls
 ```
+### Get JupyterHub Helm Bundle
+```
+export helm_version=0.9.0
+version
+wget https://jupyterhub.github.io/helm-chart/jupyterhub-v${helm_version}.tgz
+tar -zxvf jupyterhub-v${helm_version}.tgz
+```
 
-### Prepare VM template
+### Pack VM template for offline deployment
 ```
 Shutdown
 Export VM as template
@@ -181,6 +203,8 @@ Power up
 Change IP
 ```
 
+### Enable NFS dynamic storage provisioner
+
 ### Deploy Jupyterhub offline Helm chart
 ```
 RELEASE=jhub
@@ -188,4 +212,11 @@ NAMESPACE=jhub
 helm install $RELEASE ./jupyterhub --version=0.9.0 --values config.yaml
 or
 helm upgrade --install jhub jupyterhub/jupyterhub   --namespace jhub    --version=0.9.0   --values config.yaml
+```
+
+### Create secrets and TLS access
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
+kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
+add this cert into trusted cert folder
 ```
