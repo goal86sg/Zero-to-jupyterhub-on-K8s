@@ -12,10 +12,8 @@ exit # exit shall to let permissions take effect
 
 microk8s.status --wait-ready
 microk8s.enable dns dashboard registry metallb prometheus ingress
-# Do not enable if hostpath mount is not desired
-# note storage default mount point is 10GB and is mounted on local filesystem /var/snap/microk8s/common/default-storage
+# Do not enable if hostpath mount is not desired. Note storage default mount point is 10GB and is mounted on local filesystem /var/snap/microk8s/common/default-storage
 microk8s.enable storage
-
 
 # Alias microk8s.kubectl to kubectl
 alias kubectl='microk8s.kubectl'
@@ -45,7 +43,7 @@ sudo sh get-docker.sh
 sudo usermod -aG docker $USER
 # exit shell for changes to take effect
 
-export docker_compose_version=1.25.4
+export docker_compose_version=1.26.2
 echo "Installing 'docker-compose' v${docker_compose_version}" \
 &&   sudo wget -cO /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-$(uname -s)-$(uname -m) \
 &&   sudo chmod 0755 /usr/local/bin/docker-compose \
@@ -63,7 +61,14 @@ echo "Installing 'helm' v${helm_version}" \
 &&   sudo rm -rf helm-v${helm_version}-linux-amd64.tar.gz ./linux-amd64/ \
 &&   helm version
 ```
-## Enable NFS dynamic storage provisioner
+## Create NFS provisioner using nfspvc_dynamic
+
+## Create secrets
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
+kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
+add this cert into trusted cert folder
+```
 
 ## Install or Reconfiguring JupyterHub with Helm (if with internet connection)
 ```
@@ -76,7 +81,7 @@ NAMESPACE=jhub
 helm upgrade --install $RELEASE jupyterhub/jupyterhub \
   --namespace $NAMESPACE  \
   --version=0.9.0 \
-  --values config.yaml
+  --values config-AD-NFS-Ingress.yaml
 ```
 
 ## Deployed Jupyterhub on Kubernetes
@@ -115,13 +120,6 @@ jhub                 proxy-api                   ClusterIP      10.152.183.73   
 jhub                 proxy-public                LoadBalancer   10.152.183.184   10.64.140.43   443:31727/TCP,80:32393/TCP   54m
 ```
 
-## Create secrets and TLS access
-```
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
-kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
-add this cert into trusted cert folder
-```
-
 ## Jupyterhub front end
 ```
 Access via fqdn https://jupyter.domain.com
@@ -142,10 +140,11 @@ Perform with internet connection first
 -Download Jupyterhub helm bundle
 -Pack VM template for offline deployment
 -Enable NFS dynamic storage provisioner
+-Create secrets
 -Deploy Jupyterhub offline Helm chart
 ```
 
-### Pull tag push docker images required to microk8s registry
+## Pull tag push docker images required to microk8s registry
 ```
 REPOSITORY                                                      TAG                 IMAGE ID            CREATED             SIZE
 cschranz/gpu-jupyter                                            latest              8b805e56e4c4        45 hours ago        14.4GB
@@ -185,7 +184,7 @@ quay.io/external_storage/nfs-client-provisioner                   latest        
 
 microk8s ctr images ls
 ```
-### Get JupyterHub Helm Bundle
+## Get JupyterHub Helm Bundle
 ```
 export helm_version=0.9.0
 version
@@ -193,7 +192,7 @@ wget https://jupyterhub.github.io/helm-chart/jupyterhub-v${helm_version}.tgz
 tar -zxvf jupyterhub-v${helm_version}.tgz
 ```
 
-### Pack VM template for offline deployment
+## Pack VM template for offline deployment
 ```
 Shutdown
 Export VM as template
@@ -203,20 +202,21 @@ Power up
 Change IP
 ```
 
-### Enable NFS dynamic storage provisioner
+## Create NFS provisioner using nfspvc_dynamic
+kubectl create namespace jhub
 
-### Deploy Jupyterhub offline Helm chart
-```
-RELEASE=jhub
-NAMESPACE=jhub
-helm install $RELEASE ./jupyterhub --version=0.9.0 --values config.yaml
-or
-helm upgrade --install jhub jupyterhub/jupyterhub   --namespace jhub    --version=0.9.0   --values config.yaml
-```
-
-### Create secrets and TLS access
+### Create secrets
 ```
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
 kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
 add this cert into trusted cert folder
+```
+
+## Deploy Jupyterhub offline Helm chart
+```
+RELEASE=jhub
+NAMESPACE=jhub
+helm install $RELEASE ./jupyterhub   --namespace jhub    --version=0.9.0   --values config-AD-NFS-Ingress.yaml
+or
+helm upgrade --install jhub ./jupyterhub   --namespace jhub    --version=0.9.0   --values config-AD-NFS-Ingress.yaml
 ```
