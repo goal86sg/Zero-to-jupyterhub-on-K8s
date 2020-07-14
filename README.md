@@ -203,7 +203,9 @@ Change IP
 ```
 
 ## Create NFS provisioner using nfspvc_dynamic
+```
 kubectl create namespace jhub
+```
 
 ### Create secrets
 ```
