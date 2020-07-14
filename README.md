@@ -116,9 +116,11 @@ jhub                 proxy-public                LoadBalancer   10.152.183.184  
 ```
 
 ## Create secrets and TLS access
+```
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
 kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
 add this cert into trusted cert folder
+```
 
 ## Jupyterhub front end
 ```
@@ -178,6 +180,8 @@ localhost:32000/jupyter/scipy-notebook                          dd2087c75645    
 localhost:32000/jupyter/tensorflow-notebook                     dd2087c75645        388aa83f6d09        9 days ago          4.98GB
 localhost:32000/traefik                                         v2.1                72bfc37343a4        3 months ago        68.9MB
 traefik                                                         v2.1                72bfc37343a4        3 months ago        68.9MB
+localhost:32000/quay.io/external_storage/nfs-client-provisioner   latest                   16d2f904b0d8        22 months ago       45.5MB
+quay.io/external_storage/nfs-client-provisioner                   latest                   16d2f904b0d8        22 months ago       45.5MB
 
 microk8s ctr images ls
 ```
@@ -211,6 +215,8 @@ helm upgrade --install jhub jupyterhub/jupyterhub   --namespace jhub    --versio
 ```
 
 ### Create secrets and TLS access
+```
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
 kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
 add this cert into trusted cert folder
+```
