@@ -1,0 +1,92 @@
+proxy:
+  secretToken: "94341054d954108df485a86df1a57a64eb837e00abbd67ad90f5fb4f246cb79b"
+ingress:
+  enabled: true        
+  hosts:
+    - jupyter.domain.com
+  tls:
+    - secretName: mysecret
+      hosts:
+        - jupyter.domain.com    
+auth:
+  admin:
+    users:
+      - des        
+  type: ldap
+  ldap:
+    server:
+      address: 10.10.0.243
+    dn:
+      lookup: false
+      search:
+        filter: '({login_attr}={login})'
+        user: 'Administrator'
+        password: 'P@ssw0rd'
+      templates:
+        - 'cn={username},ou=people,dc=contoso,dc=com'
+      user:
+        searchBase: 'ou=people,dc=contoso,dc=com'
+        escape: False
+        attribute: 'sAMAccountName'
+        dnAttribute: 'cn'
+    allowedGroups:
+      - 'cn=research,ou=teams,dc=contoso,dc=com'
+      - 'cn=scientist,ou=teams,dc=contoso,dc=com'
+singleuser:
+  debug: true      
+  storage:
+    dynamic:
+      storageClass: nfs-storageclass       
+  cpu:
+    limit: 2
+    guarantee: 0.5
+  memory:
+    limit: 4G
+    guarantee: 1G    
+  image:
+    name: jupyter/minimal-notebook
+    tag: 2343e33dec46
+  profileList:
+    - display_name: "Minimal environment"
+      description: "To avoid too much bells and whistles: Python."
+      default: true
+    - display_name: "Datascience environment"
+      description: "If you want the additional bells and whistles: Python, R, and Julia."
+      kubespawner_override:
+        image: jupyter/datascience-notebook:2343e33dec46
+    - display_name: "Spark environment"
+      description: "The Jupyter Stacks spark image!"
+      kubespawner_override:
+        image: jupyter/all-spark-notebook:2343e33dec46
+    - display_name: "Tensorflow environment"
+      description: "The Jupyter Stacks tensorflow image!"
+      kubespawner_override:
+        image: jupyter/tensorflow-notebook:dd2087c75645
+    - display_name: "Pyspark environment"
+      description: "The Jupyter Stacks Pyspark image!"
+      kubespawner_override:
+        image: jupyter/pyspark-notebook:dd2087c75645
+    - display_name: "Scipy environment"
+      description: "The Jupyter Stacks Scipy image!"
+      kubespawner_override:
+        image: jupyter/scipy-notebook:dd2087c75645
+    - display_name: "GPU Jupyter environment"
+      description: "Leverage Jupyter Notebooks with the power of your NVIDIA GPU and perform GPU calculations using Tensorflow and Pytorch it contains module and GPU-able libraries!"
+      kubespawner_override:
+        image: cschranz/gpu-jupyter:latest
+  extraEnv:
+    EDITOR: "vim"
+  scheduling:
+    podPriority:
+      enabled: true
+    userPlaceholder:
+      enabled: true
+      replicas: 3
+cull:
+  timeout: 900
+  every: 300
+prePuller:
+  continuous:
+    enabled: true
+  hook: 
+    enabled: false
