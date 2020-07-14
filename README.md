@@ -1,4 +1,4 @@
-# Zero-to-jupyterhub-on-K8s
+# Zero-to-jupyterhub-on-K8s with internet connection
 
 ## Enable Microk8s
 ```
@@ -11,8 +11,11 @@ sudo usermod -a -G microk8s $USER
 exit # exit shall to let permissions take effect
 
 microk8s.status --wait-ready
-microk8s.enable dns dashboard storage registry metallb prometheus
+microk8s.enable dns dashboard registry metallb prometheus ingress
+# Do not enable if hostpath mount is not desired
 # note storage default mount point is 10GB and is mounted on local filesystem /var/snap/microk8s/common/default-storage
+microk8s.enable storage
+
 
 # Alias microk8s.kubectl to kubectl
 alias kubectl='microk8s.kubectl'
@@ -60,6 +63,7 @@ echo "Installing 'helm' v${helm_version}" \
 &&   sudo rm -rf helm-v${helm_version}-linux-amd64.tar.gz ./linux-amd64/ \
 &&   helm version
 ```
+## Enable NFS dynamic storage provisioner
 
 ## Install or Reconfiguring JupyterHub with Helm (if with internet connection)
 ```
@@ -111,10 +115,17 @@ jhub                 proxy-api                   ClusterIP      10.152.183.73   
 jhub                 proxy-public                LoadBalancer   10.152.183.184   10.64.140.43   443:31727/TCP,80:32393/TCP   54m
 ```
 
+## Create secrets and TLS access
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
+kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
+add this cert into trusted cert folder
+
 ## Jupyterhub front end
 ```
-Access via the metallb external ip or via the node port ip http://xx.xx.xx.xx:32393
+Access via fqdn https://jupyter.domain.com
 ```
+
+# Zero-to-jupyterhub-on-K8s without internet connection
 
 ## Overview of JupyterHub offline setup
 ```
@@ -124,11 +135,11 @@ Perform with internet connection first
 -Allow Priviledged in Kube-api server
 -Install Docker CE and Docker-compose
 -Install latest Helm
--Download helm bundle
 -Pull down requires images
 -Push to registry
--Get Jupyterhub helm bundle
+-Download Jupyterhub helm bundle
 -Pack VM template for offline deployment
+-Enable NFS dynamic storage provisioner
 -Deploy Jupyterhub offline Helm chart
 ```
 
@@ -188,6 +199,8 @@ Power up
 Change IP
 ```
 
+### Enable NFS dynamic storage provisioner
+
 ### Deploy Jupyterhub offline Helm chart
 ```
 RELEASE=jhub
@@ -196,3 +209,8 @@ helm install $RELEASE ./jupyterhub --version=0.9.0 --values config.yaml
 or
 helm upgrade --install jhub jupyterhub/jupyterhub   --namespace jhub    --version=0.9.0   --values config.yaml
 ```
+
+### Create secrets and TLS access
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/tls.key -out /tmp/tls.crt -subj "/CN=jupyter.domain.com"
+kubectl create secret tls mysecret --key /tmp/tls.key --cert /tmp/tls.crt -n jhub
+add this cert into trusted cert folder
