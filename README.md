@@ -62,6 +62,7 @@ echo "Installing 'helm' v${helm_version}" \
 &&   helm version
 ```
 ## Create NFS provisioner using nfspvc_dynamic
+setting default storage provisioner to be NFS --> https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/
 
 ## Create secrets
 ```
@@ -205,6 +206,7 @@ Change IP
 ## Create NFS provisioner using nfspvc_dynamic
 ```
 kubectl create namespace jhub
+setting default storage provisioner to be NFS --> https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/
 ```
 
 ### Create secrets
