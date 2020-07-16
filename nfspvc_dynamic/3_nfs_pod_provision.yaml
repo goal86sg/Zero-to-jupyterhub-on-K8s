@@ -2,7 +2,6 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: nfs-pod-provisioner
-  namespace: phub
 spec:
   selector:  
     matchLabels:
@@ -28,9 +27,9 @@ spec:
             - name: NFS_SERVER # do not change
               value: 10.10.0.243 # Ip of the NFS SERVER
             - name: NFS_PATH # do not change
-              value: /share # path to nfs directory setup
+              value: /shared # path to nfs directory setup
       volumes:
        - name: nfs-provisioner-v # same as volumemouts name
          nfs:
            server: 10.10.0.243
-           path: /share
+           path: /shared
