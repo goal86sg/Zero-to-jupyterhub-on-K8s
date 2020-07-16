@@ -6,6 +6,7 @@ export microk8s_version=1.18/stable
 
 sudo echo # This prevents sudo from asking you for a password later
 sudo apt -y update && sudo apt -y upgrade
+sudo apt-get install nfs-common
 sudo snap install microk8s --classic --channel=${microk8s_version}
 sudo usermod -a -G microk8s $USER
 exit # exit shall to let permissions take effect
