@@ -218,6 +218,9 @@ add this cert into trusted cert folder
 
 ## Deploy Jupyterhub offline Helm chart
 ```
+wget https://jupyterhub.github.io/helm-chart/jupyterhub-0.9.0.tgz
+tar -zxvf jupyterhub-0.9.0.tgz
+#tweak necessary values.yaml file to point to internal registry
 RELEASE=jhub
 NAMESPACE=jhub
 helm install $RELEASE ./jupyterhub   --namespace jhub    --version=0.9.0   --values config-AD-NFS-Ingress.yaml
