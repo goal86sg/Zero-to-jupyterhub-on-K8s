@@ -187,10 +187,9 @@ microk8s ctr images ls
 ```
 ## Get JupyterHub Helm Bundle
 ```
-export helm_version=0.9.0
-version
-wget https://jupyterhub.github.io/helm-chart/jupyterhub-v${helm_version}.tgz
-tar -zxvf jupyterhub-v${helm_version}.tgz
+export jhub_version=0.9.0
+wget https://jupyterhub.github.io/helm-chart/jupyterhub-v${jhub_version}.tgz
+tar -zxvf jupyterhub-v${jhub_version}.tgz
 ```
 
 ## Pack VM template for offline deployment
@@ -218,8 +217,6 @@ add this cert into trusted cert folder
 
 ## Deploy Jupyterhub offline Helm chart
 ```
-wget https://jupyterhub.github.io/helm-chart/jupyterhub-0.9.0.tgz
-tar -zxvf jupyterhub-0.9.0.tgz
 #tweak necessary values.yaml file to point to internal registry
 RELEASE=jhub
 NAMESPACE=jhub
