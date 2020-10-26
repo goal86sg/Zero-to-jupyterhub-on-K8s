@@ -45,22 +45,6 @@ singleuser:
       description: "If you want the additional bells and whistles: Python, R, and Julia.                                                                                                                        "
       kubespawner_override:
         image: jupyter/datascience-notebook:2343e33dec46
-    - display_name: "Spark environment"
-      description: "The Jupyter Stacks spark image!"
-      kubespawner_override:
-        image: jupyter/all-spark-notebook:2343e33dec46
-    - display_name: "Tensorflow environment"
-      description: "The Jupyter Stacks tensorflow image!"
-      kubespawner_override:
-        image: jupyter/tensorflow-notebook:dd2087c75645
-    - display_name: "Pyspark environment"
-      description: "The Jupyter Stacks Pyspark image!"
-      kubespawner_override:
-        image: jupyter/pyspark-notebook:dd2087c75645
-    - display_name: "Scipy environment"
-      description: "The Jupyter Stacks Scopy image!"
-      kubespawner_override:
-        image: jupyter/scipy-notebook:dd2087c75645
   extraEnv:
     EDITOR: "vim"
   scheduling:
