@@ -2,7 +2,7 @@
 
 ## Enable Microk8s
 ```
-export microk8s_version=1.18/stable
+export microk8s_version=1.19/stable
 
 sudo echo # This prevents sudo from asking you for a password later
 sudo apt -y update && sudo apt -y upgrade
@@ -44,7 +44,7 @@ sudo sh get-docker.sh
 sudo usermod -aG docker $USER
 # exit shell for changes to take effect
 
-export docker_compose_version=1.26.2
+export docker_compose_version=1.27.4
 echo "Installing 'docker-compose' v${docker_compose_version}" \
 &&   sudo wget -cO /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-$(uname -s)-$(uname -m) \
 &&   sudo chmod 0755 /usr/local/bin/docker-compose \
@@ -53,7 +53,7 @@ echo "Installing 'docker-compose' v${docker_compose_version}" \
 
 ## Install latest Helm
 ```
-export helm_version=3.2.4
+export helm_version=3.4.2
 echo "Installing 'helm' v${helm_version}" \
 &&   sudo wget -c https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz \
 &&   sudo tar -zxvf helm-v${helm_version}-linux-amd64.tar.gz \
