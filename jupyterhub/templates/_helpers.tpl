@@ -163,7 +163,7 @@ component: {{ include "jupyterhub.componentLabel" . }}
 
 
 {{- /*
-  jupyterhub.dockersingleuserconfigjson:
+  jupyterhub.dockerconfigjson:
     Creates a base64 encoded docker registry json blob for use in a image pull
     secret, just like the `kubectl create secret docker-registry` command does
     for the generated secrets data.dockerconfigjson field. The output is
@@ -172,12 +172,12 @@ component: {{ include "jupyterhub.componentLabel" . }}
 
     - https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
 */}}
-{{- define "jupyterhub.dockersingleuserconfigjson" -}}
-{{ include "jupyterhub.dockersingleuserconfigjson.yaml" . | b64enc }}
+{{- define "jupyterhub.dockerconfigjson" -}}
+{{ include "jupyterhub.dockerconfigjson.yaml" . | b64enc }}
 {{- end }}
 
-{{- define "jupyterhub.dockersingleuserconfigjson.yaml" -}}
-{{- with .Values.singleuser.imagePullSecret -}}
+{{- define "jupyterhub.dockerconfigjson.yaml" -}}
+{{- with .Values.imagePullSecret -}}
 {
   "auths": {
     {{ .registry | default "https://index.docker.io/v1/" | quote }}: {
@@ -194,33 +194,33 @@ component: {{ include "jupyterhub.componentLabel" . }}
 {{- end }}
 
 {{- /*
-  jupyterhub.dockerhubconfigjson:
-    Creates a base64 encoded docker registry json blob for use in a image pull
-    secret, just like the `kubectl create secret docker-registry` command does
-    for the generated secrets data.dockerhubconfigjson field. The output is
-    verified to be exactly the same even if you have a password spanning
-    multiple lines as you may need to use a private GCR registry.
-
-    - https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
+  jupyterhub.imagePullSecrets
+    Augments passed .pullSecrets with $.Values.imagePullSecrets
 */}}
-{{- define "jupyterhub.dockerhubconfigjson" -}}
-{{ include "jupyterhub.dockerhubconfigjson.yaml" . | b64enc }}
+{{- define "jupyterhub.imagePullSecrets" -}}
+{{- /* Populate $_.list with all relevant entries */}}
+{{- $_ := dict "list" (concat .image.pullSecrets .root.Values.imagePullSecrets | uniq) }}
+{{- if and .root.Values.imagePullSecret.automaticReferenceInjection .root.Values.imagePullSecret.create }}
+{{- $__ := set $_ "list" (append $_.list "image-pull-secret" | uniq) }}
 {{- end }}
 
-{{- define "jupyterhub.dockerhubconfigjson.yaml" -}}
-{{- with .Values.hub.imagePullSecret -}}
-{
-  "auths": {
-    {{ .registry | default "https://index.docker.io/v1/" | quote }}: {
-      "username": {{ .username | quote }},
-      "password": {{ .password | quote }},
-      {{- if .email }}
-      "email": {{ .email | quote }},
-      {{- end }}
-      "auth": {{ (print .username ":" .password) | b64enc | quote }}
-    }
-  }
-}
+{{- /* Decide if something should be written */}}
+{{- if not (eq ($_.list | toJson) "[]") }}
+
+{{- /* Process the $_.list where strings become dicts with a name key and the
+strings become the name keys' values into $_.res */}}
+{{- $_ := set $_ "res" list }}
+{{- range $_.list }}
+{{- if eq (typeOf .) "string" }}
+{{- $__ := set $_ "res" (append $_.res (dict "name" .)) }}
+{{- else }}
+{{- $__ := set $_ "res" (append $_.res .) }}
+{{- end }}
+{{- end }}
+
+{{- /* Write the results */}}
+{{- $_.res | toJson }}
+
 {{- end }}
 {{- end }}
 
@@ -267,3 +267,42 @@ limits:
   {{- end }}
 {{- end }}
 {{- end }}
+
+{{- /*
+  jupyterhub.extraEnv:
+    Output YAML formatted EnvVar entries for use in a containers env field.
+*/}}
+{{- define "jupyterhub.extraEnv" -}}
+{{- include "jupyterhub.extraEnv.withTrailingNewLine" . | trimSuffix "\n" }}
+{{- end }}
+
+{{- define "jupyterhub.extraEnv.withTrailingNewLine" -}}
+{{- if . }}
+{{- /* If extraEnv is a list, we inject it as it is. */}}
+{{- if eq (typeOf .) "[]interface {}" }}
+{{- . | toYaml }}
+
+{{- /* If extraEnv is a map, we differentiate two cases: */}}
+{{- else if eq (typeOf .) "map[string]interface {}" }}
+{{- range $key, $value := . }}
+{{- /*
+    - If extraEnv.someKey has a map value, then we add the value as a YAML
+      parsed list element and use the key as the name value unless its
+      explicitly set.
+*/}}
+{{- if eq (typeOf $value) "map[string]interface {}" }}
+{{- merge (dict) $value (dict "name" $key) | list | toYaml | println }}
+{{- /*
+    - If extraEnv.someKey has a string value, then we use the key as the
+      environment variable name for the value.
+*/}}
+{{- else if eq (typeOf $value) "string" -}}
+- name: {{ $key | quote }}
+  value: {{ $value | quote | println }}
+{{- else }}
+{{- printf "?.extraEnv.%s had an unexpected type (%s)" $key (typeOf $value) | fail }}
+{{- end }}
+{{- end }} {{- /* end of range */}}
+{{- end }}
+{{- end }} {{- /* end of: if . */}}
+{{- end }} {{- /* end of definition */}}

@@ -1,5 +1,13 @@
 proxy:
   secretToken: "94341054d954108df485a86df1a57a64eb837e00abbd67ad90f5fb4f246cb79b"
+ingress:
+  enabled: true        
+  hosts:
+    - jupyter1.domain.com
+  tls:
+    - secretName: mysecret
+      hosts:
+        - jupyter1.domain.com 
 auth:
   type: dummy
   dummy:
@@ -42,9 +50,9 @@ singleuser:
       description: "To avoid too much bells and whistles: Python."
       default: true
     - display_name: "Tensorflow environment"
-      description: "If you want the additional bells and whistles: Python, R, and Julia.                                                                                                                        "
+      description: "If you want the additional bells and whistles: Python, R, and Julia."
       kubespawner_override:
-      image: localhost:32000/jupyter/tensorflow-notebook:703d8b2dcb88
+        image: localhost:32000/jupyter/tensorflow-notebook:703d8b2dcb88
   extraEnv:
     EDITOR: "vim"
   scheduling:
