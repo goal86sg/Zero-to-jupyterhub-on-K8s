@@ -1,0 +1,55 @@
+proxy:
+  secretToken: "94341054d954108df485a86df1a57a64eb837e00abbd67ad90f5fb4f246cb79b"
+auth:
+  type: dummy
+  dummy:
+    password: 'P@ssw0rd'
+  whitelist:
+    users:
+      - admin
+      - test
+      - love
+  #type: ldap
+  #ldap:
+  #  server:
+  #    address: contoso.com
+  #    port: 389
+  #  dn:
+  #    lookup: true
+  #    search:
+  #      filter: '({login_attr}={login})'
+  #      user: 'cn=administrator,dc=contoso,dc=com'
+  #      password: 'P@ssw0rd'
+  #    templates:
+  #      - 'cn={username},ou=people,dc=contoso,dc=com'
+  #    user:
+  #      searchBase: 'ou=people,dc=contoso,dc=com'
+  #      escape: False
+  #      attribute: 'uid'
+  #      dnAttribute: 'uid'
+  #  allowedGroups:
+  #    - 'cn=research,ou=teams,dc=contoso,dc=com'
+  #    - 'cn=scientist,ou=teams,dc=contoso,dc=com'
+singleuser:
+  cpu:
+    limit: .5
+    guarantee: .5
+  image:
+    name: localhost:32000/jupyter/minimal-notebook
+    tag: 703d8b2dcb88
+  profileList:
+    - display_name: "Minimal environment"
+      description: "To avoid too much bells and whistles: Python."
+      default: true
+    - display_name: "Tensorflow environment"
+      description: "If you want the additional bells and whistles: Python, R, and Julia.                                                                                                                        "
+      kubespawner_override:
+      image: localhost:32000/jupyter/tensorflow-notebook:703d8b2dcb88
+  extraEnv:
+    EDITOR: "vim"
+  scheduling:
+    podPriority:
+      enabled: true
+    userPlaceholder:
+      enabled: true
+      replicas: 3
