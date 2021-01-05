@@ -50,9 +50,13 @@ singleuser:
       description: "To avoid too much bells and whistles: Python."
       default: true
     - display_name: "Tensorflow environment"
-      description: "If you want the additional bells and whistles: Python, R, and Julia."
+      description: "Includes popular Pythnon deep learning libraries such as Tensorflow and Keras."
       kubespawner_override:
         image: localhost:32000/jupyter/tensorflow-notebook:703d8b2dcb88
+    - display_name: "Scipy environment"
+      description: "Includes popular packages from scientific Python ecosystem."
+      kubespawner_override:
+        image: localhost:32000/jupyter/scipy-notebook:703d8b2dcb88
   extraEnv:
     EDITOR: "vim"
   scheduling:
