@@ -92,3 +92,7 @@ prePuller:
     enabled: true
   hook: 
     enabled: false
+    
+hub:
+  extraConfig: |-
+    c.JupyterHub.template_vars = {'announcement': '<h5>If you do not have access to this server but would like it, email support</h5>'}
