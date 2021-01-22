@@ -1,7 +1,9 @@
 proxy:
   secretToken: "94341054d954108df485a86df1a57a64eb837e00abbd67ad90f5fb4f246cb79b"
 ingress:
-  enabled: true        
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 300m
   hosts:
     - jupyter.domain.com
   tls:
