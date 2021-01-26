@@ -3,7 +3,11 @@ proxy:
 ingress:
   enabled: true
   annotations:
+    kubernetes.io/tls-acme: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: 300m
+    ingress.kubernetes.io/proxy-connect-timeout: "60"
+    ingress.kubernetes.io/proxy-read-timeout: "3600"
+    ingress.kubernetes.io/proxy-send-timeout: "3600"
   hosts:
     - jupyter.domain.com
   tls:
